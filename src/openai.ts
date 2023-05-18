@@ -1,27 +1,57 @@
-const OpenAI_MODELS = {
-    GPT35TURBO: 'gpt-3.5-turbo',
-};
+export interface OpenAI35Message {
+    role: string,
+    content: string,
+}
 
-class OpenAI {
+export interface OpenAI35Response {
+    id: string;
+    object: string;
+    created: number;
+    model: string;
+    usage: {
+        prompt_tokens: number;
+        completion_tokens: number;
+        total_tokens: number;
+    };
+    choices: {
+        message: OpenAI35Message;
+        finish_reason: string;
+        index: number;
+    }[];
+}
+
+
+export class OpenAI {
+    static MODELS = {
+        GPT35TURBO: 'gpt-3.5-turbo',
+    } as const;
+
+    static ROLES = {
+        SYSTEM: 'system',
+        ASSISTANT: 'assistant',
+        USER: 'user',
+    } as const;
+
     secretKey: string;
-    model: string = OpenAI_MODELS.GPT35TURBO;
-    maxTokens: number = 2000; // max token of answer. question and answer takes 4097 tokens at most.
-    temperature: number;
+    model: string;
+    maxTokens: number; // max token of answer. question and answer takes 4097 tokens at most.
+    temperature: number; // 0.0 ~ 1.0
 
     // constructor
     constructor(params: {
-        model?: string,
-        maxTokens?: number,
-        temperature?: number,
+        model: string,
+        maxTokens: number,
+        temperature: number,
     }) {
         this.secretKey = PropertiesService.getScriptProperties().getProperty('OPENAI_SECRET_KEY') || '';
-        if (params.model) this.model = params.model;
-        if (params.maxTokens) this.maxTokens = params.maxTokens;
-        if (params.temperature) this.temperature = params.temperature;
+        this.model = params.model;
+        this.maxTokens = params.maxTokens;
+        this.temperature = params.temperature;
     }
 
+
     // chat
-    chat35(messages: string[]) {
+    chat35(messages: object[]): OpenAI35Response {
         const url = "https://api.openai.com/v1/chat/completions";
         const payload = {
             model: this.model,
@@ -38,9 +68,23 @@ class OpenAI {
         };
 
         const txt = UrlFetchApp.fetch(url, options).getContentText();
-        console.log(txt);
-        const res = JSON.parse(txt);
-        return res.choices[0].message.content;
+        const result= JSON.parse(txt);
+        console.log(JSON.stringify(result,null,2));
+        return result;
     }
 }
 
+
+function OpenAITest() {
+    const test = new OpenAI({
+        model: OpenAI.MODELS.GPT35TURBO,
+        maxTokens: 2000,
+        temperature: 0.7,
+    });
+    const messages: OpenAI35Message[] = [
+        { role: OpenAI.ROLES.SYSTEM, content: "You are a friend of user" },
+        { role: OpenAI.ROLES.USER, content: "hello" },
+    ];
+    const res = test.chat35(messages).choices[0].message.content;
+    console.log(res);
+}
