@@ -51,7 +51,7 @@ export class OpenAI {
 
 
     // chat
-    chat35(messages: object[]): OpenAI35Response {
+    chat35(messages: OpenAI35Message[]): OpenAI35Response {
         const url = "https://api.openai.com/v1/chat/completions";
         const payload = {
             model: this.model,
@@ -68,8 +68,8 @@ export class OpenAI {
         };
 
         const txt = UrlFetchApp.fetch(url, options).getContentText();
-        const result= JSON.parse(txt);
-        console.log(JSON.stringify(result,null,2));
+        const result = JSON.parse(txt);
+        console.log(JSON.stringify(result, null, 2));
         return result;
     }
 }
