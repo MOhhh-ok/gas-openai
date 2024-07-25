@@ -1,4 +1,9 @@
-type OpenAiModel = 'gpt-3.5-turbo' | 'gpt-4';
+type OpenAiModel =
+    | 'gpt-3.5-turbo'
+    | 'gpt-4'
+    | 'gpt-4o'
+    | 'gpt-4o-mini'
+    | 'gpt-4-turbo';
 type OpenAiMessage = { role: 'user' | 'assistant'; content: string };
 type OpenAiResponse = { choices: [{ message: { content: string } }] };
 
